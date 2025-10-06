@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reCAPTCHA Example</title>
+    <!-- Include reCAPTCHA script -->
+    <!-- <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfBLQgqAAAAAHbIydaPI39vVgIcRzsvP0EazIxk"></script> -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfBLQgqAAAAAHbIydaPI39vVgIcRzsvP0EazIxk"></script>
+    <script>
+        // Execute reCAPTCHA and handle the token
+        function executeRecaptcha() {
+            grecaptcha.execute('6LfBLQgqAAAAAHbIydaPI39vVgIcRzsvP0EazIxk', {action: 'submit'}).then(function(token) {
+                // Send the token to your backend for verification
+                console.log('Token:', token);
+                // You can perform further actions with the token here
+                // For example, send it to your backend via AJAX
+                // Example AJAX request (replace with your server endpoint)
+                /* */
+                fetch('/verify-recaptcha', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token })
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(data) {
+                    console.log('Verification result:', data);
+                    // Handle verification result as needed
+                }).catch(function(error) {
+                    console.error('Error verifying reCAPTCHA:', error);
+                });
+
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <h1>reCAPTCHA Example Page</h1>
+    <p>Complete the reCAPTCHA to continue:</p>
+    <!-- Placeholder for the reCAPTCHA widget -->
+    <div id="recaptcha-container"></div>
+    <!-- Button to trigger reCAPTCHA execution -->
+    <button class="g-recaptcha"
+    data-sitekey="reCAPTCHA_site_key"
+    data-callback='onSubmit'
+    data-action='submit'>Submit</button>
+    </body>
+</html>

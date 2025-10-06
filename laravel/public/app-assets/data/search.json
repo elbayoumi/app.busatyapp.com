@@ -1,0 +1,47 @@
+{
+  "listItems": [
+    { "name": "Dashboard", "url": "/dashboard/home", "icon": "home" },
+    { "name": "Home", "url": "/dashboard/home", "icon": "home" },
+    { "name": "Reports", "url": "/dashboard/reports", "icon": "pie-chart" },
+
+    { "name": "Governorates", "url": "/dashboard/governorates", "icon": "map" },
+    { "name": "Create governorate", "url": "/dashboard/governorates/create", "icon": "map" },
+
+    { "name": "Cities", "url": "/dashboard/cities", "icon": "map-pin" },
+    { "name": "Create city", "url": "/dashboard/cities/create", "icon": "map-pin" },
+
+    { "name": "Specialties", "url": "/dashboard/specialties", "icon": "list" },
+    { "name": "Create specialty", "url": "/dashboard/specialties/create", "icon": "list" },
+
+    { "name": "Products", "url": "/dashboard/products", "icon": "package" },
+    { "name": "Create product", "url": "/dashboard/products/create", "icon": "package" },
+
+    { "name": "Items", "url": "/dashboard/items", "icon": "shopping-bag" },
+    { "name": "Create item", "url": "/dashboard/items/create", "icon": "shopping-bag" },
+
+    { "name": "Doctors Categories", "url": "/dashboard/doctors-categories", "icon": "map" },
+    { "name": "Create doctors category", "url": "/dashboard/doctors-categories/create", "icon": "layers" },
+
+    { "name": "Doctors", "url": "/dashboard/doctors", "icon": "shield" },
+    { "name": "Create doctor", "url": "/dashboard/doctors/create", "icon": "shield" },
+
+    { "name": "Lines", "url": "/dashboard/lines", "icon": "clipboard" },
+    { "name": "Create line", "url": "/dashboard/lines/create", "icon": "clipboard" },
+
+    { "name": "Representatives", "url": "/dashboard/representatives", "icon": "user" },
+    { "name": "Create representative", "url": "/dashboard/representatives/create", "icon": "user" },
+
+    { "name": "Roles", "url": "/dashboard/roles", "icon": "pocket" },
+    { "name": "Create role", "url": "/dashboard/roles/create", "icon": "pocket" },
+
+    { "name": "Staff", "url": "/dashboard/staff", "icon": "user-check" },
+    { "name": "Create staff", "url": "/dashboard/staff/create", "icon": "user-check" },
+
+    { "name": "Settings", "url": "/dashboard/settings/general", "icon": "settings" }
+
+   
+
+
+
+  ]
+}

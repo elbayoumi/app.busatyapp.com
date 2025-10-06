@@ -1,0 +1,1 @@
+{"result":{"text":"right to left open vertical bar blank close vertical bar"},"status":"ok"}
