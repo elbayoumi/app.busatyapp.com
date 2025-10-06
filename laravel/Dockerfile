@@ -4,12 +4,12 @@
 ############################################
 FROM php:8.2-fpm
 
-# --- Build args to align container user with host (avoid file perms issues)
+# --- Build arguments to align container user with host (prevent permission issues)
 ARG PUID=1000
 ARG PGID=1000
-ARG INSTALL_XDEBUG=0   # set to 1 if you want xdebug while building
+ARG INSTALL_XDEBUG=0   # set to 1 to include xdebug at build time
 
-# --- System dependencies (lean set; add more only if needed)
+# --- System dependencies (light base)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip zip curl ca-certificates \
     libpng-dev libjpeg-dev libfreetype6-dev \
@@ -17,23 +17,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev pkg-config autoconf g++ make \
  && rm -rf /var/lib/apt/lists/*
 
-# --- PHP extensions commonly required by Laravel
-# gd (with jpeg/freetype) + pdo_mysql + intl + zip + exif + bcmath + pcntl + sockets
+# --- Common PHP extensions for Laravel
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
  && docker-php-ext-install -j"$(nproc)" \
       pdo_mysql bcmath gd zip intl exif pcntl sockets
 
 # --- Redis via PECL
-RUN pecl install redis \
- && docker-php-ext-enable redis
+RUN pecl install redis && docker-php-ext-enable redis
 
-# --- Optional: Xdebug (build with --build-arg INSTALL_XDEBUG=1)
+# --- Optional: Xdebug
 RUN if [ "$INSTALL_XDEBUG" = "1" ]; then \
       pecl install xdebug && docker-php-ext-enable xdebug && \
       { echo "xdebug.mode=develop,debug"; echo "xdebug.start_with_request=yes"; } > /usr/local/etc/php/conf.d/xdebug.ini ; \
     fi
 
-# --- Opcache (good defaults; can be overridden by mounted local.ini)
+# --- Opcache defaults
 RUN { \
   echo "opcache.enable=1"; \
   echo "opcache.enable_cli=0"; \
@@ -43,7 +41,7 @@ RUN { \
   echo "opcache.revalidate_freq=0"; \
 } > /usr/local/etc/php/conf.d/opcache.ini
 
-# --- Reasonable PHP defaults (overridable by docker/php/local.ini from compose)
+# --- Reasonable PHP defaults
 RUN { \
   echo "memory_limit=512M"; \
   echo "upload_max_filesize=64M"; \
@@ -55,23 +53,33 @@ RUN { \
   echo "error_reporting=E_ALL & ~E_DEPRECATED & ~E_STRICT"; \
 } > /usr/local/etc/php/conf.d/99-app.ini
 
-# --- Composer (from official image) + cache dir
+# --- Composer (from official image)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/composer
 
-# --- Align www-data UID/GID with host (so mounted volumes stay writable)
+# --- Align www-data UID/GID with host
 RUN groupmod -o -g ${PGID} www-data \
  && usermod  -o -u ${PUID} -g www-data www-data
 
-# --- App working directory
+# --- Application working directory
 WORKDIR /var/www/html
 
-# --- Ensure runtime dirs exist and are writable (safe if already present)
-RUN mkdir -p storage bootstrap/cache \
- && chown -R www-data:www-data storage bootstrap/cache
+# --- Copy project files (do this before composer to ensure it has composer.json)
+COPY . /var/www/html
 
-# --- Switch to non-root by default (compose can still override with `user:`)
+# --- Ensure necessary directories exist and are writable
+RUN mkdir -p /var/www/html/vendor /var/www/html/storage /var/www/html/bootstrap/cache \
+ && chown -R www-data:www-data /var/www/html \
+ && find /var/www/html -type d -exec chmod 775 {} \; \
+ && find /var/www/html -type f -exec chmod 664 {} \; \
+ && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# --- Switch to non-root user
 USER www-data
 
-# Default CMD is php-fpm (from base image)
+# --- Install composer dependencies (no-dev)
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+# --- Default CMD
+CMD ["php-fpm"]
