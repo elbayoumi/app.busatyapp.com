@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   app:
     build:
@@ -16,6 +14,8 @@ services:
     volumes:
       - ./laravel:/var/www/html
       - composer-cache:/tmp/composer
+    # entrypoint يضمن vendor + الصلاحيات قبل تشغيل php-fpm
+    entrypoint: ["/var/www/html/entrypoint.sh"]
     depends_on:
       db:
         condition: service_healthy
@@ -96,9 +96,12 @@ services:
     container_name: busatyapp_queue
     working_dir: /var/www/html
     user: "${UID:-1000}:${GID:-1000}"
+    # entrypoint يضمن وجود vendor قبل أمر الـ queue
+    entrypoint: ["/var/www/html/entrypoint.sh"]
     command: php artisan queue:work --sleep=1 --tries=3
     volumes:
       - ./laravel:/var/www/html
+      - composer-cache:/tmp/composer
     depends_on:
       app:
         condition: service_started
@@ -113,9 +116,11 @@ services:
     container_name: busatyapp_scheduler
     working_dir: /var/www/html
     user: "${UID:-1000}:${GID:-1000}"
+    entrypoint: ["/var/www/html/entrypoint.sh"]
     command: php artisan schedule:work
     volumes:
       - ./laravel:/var/www/html
+      - composer-cache:/tmp/composer
     depends_on:
       app:
         condition: service_started
