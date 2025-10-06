@@ -6,7 +6,7 @@ services:
     image: busatyapp-php:8.2
     container_name: busatyapp_app
     working_dir: /var/www/html
-    user: "${UID:-1000}:${GID:-1000}"
+    user: "www-data"
     environment:
       PHP_MEMORY_LIMIT: 512M
       COMPOSER_ALLOW_SUPERUSER: "1"
@@ -14,7 +14,7 @@ services:
     volumes:
       - ./laravel:/var/www/html
       - composer-cache:/tmp/composer
-    # entrypoint يضمن vendor + الصلاحيات قبل تشغيل php-fpm
+      - vendor:/var/www/html/vendor          # ✅ vendor volume داخل Docker
     entrypoint: ["/var/www/html/entrypoint.sh"]
     depends_on:
       db:
@@ -95,13 +95,13 @@ services:
     image: busatyapp-php:8.2
     container_name: busatyapp_queue
     working_dir: /var/www/html
-    user: "${UID:-1000}:${GID:-1000}"
-    # entrypoint يضمن وجود vendor قبل أمر الـ queue
+    user: "www-data"
     entrypoint: ["/var/www/html/entrypoint.sh"]
     command: php artisan queue:work --sleep=1 --tries=3
     volumes:
       - ./laravel:/var/www/html
       - composer-cache:/tmp/composer
+      - vendor:/var/www/html/vendor
     depends_on:
       app:
         condition: service_started
@@ -115,12 +115,13 @@ services:
     image: busatyapp-php:8.2
     container_name: busatyapp_scheduler
     working_dir: /var/www/html
-    user: "${UID:-1000}:${GID:-1000}"
+    user: "www-data"
     entrypoint: ["/var/www/html/entrypoint.sh"]
     command: php artisan schedule:work
     volumes:
       - ./laravel:/var/www/html
       - composer-cache:/tmp/composer
+      - vendor:/var/www/html/vendor
     depends_on:
       app:
         condition: service_started
@@ -172,3 +173,4 @@ volumes:
   composer-cache:
   caddy-data:
   caddy-config:
+  vendor:
